@@ -1,9 +1,37 @@
-# OmniDecision
+<p align="center">
+  <a href="https://mbjinx.github.io/omnidecision_web/"><img src="docs/assets/omnidecision.svg" width="90" height="90" alt="Omni-Decision project website"></a>
+</p>
 
-Ask a question about your own videos or images. OmniDecision builds an evidence
-state for each question. The planner selects tools to locate relevant clips,
-inspect frames, or retrieve dialogue. The critic checks the evidence before the
-agent answers. The command-line runner and local trace viewer use the same agent.
+<h1 align="center">Omni-Decision</h1>
+<p align="center"><strong>Evidence-Ledger Planning for Omni-Modal Agents</strong></p>
+<p align="center">
+  Ming Ma · Yi Zhu · Yiran Zhong · Feida Zhu · Yuhao Wang<br>
+  Junhan Shi · Lingrui Mei · Tianming Yang · Steven Hoi
+</p>
+
+<p align="center">
+  <a href="https://mbjinx.github.io/omnidecision_web/"><strong>Project website</strong></a> ·
+  <a href="https://arxiv.org/abs/2607.11433"><strong>arXiv</strong></a> ·
+  <a href="https://arxiv.org/pdf/2607.11433">PDF</a> ·
+  <a href="https://mbjinx.github.io/omnidecision_web/#demo">Interactive walkthrough</a> ·
+  <a href="https://mbjinx.github.io/omnidecision_web/#results">Results</a>
+</p>
+
+Omni-Decision answers questions about long videos and images by keeping an
+**evidence ledger** for each question. The planner reads what is still missing
+and chooses a tool. The critic checks the observation, and the reducer records
+which needs it resolves and which conflicts remain. The next decision starts
+from that updated ledger.
+
+<p align="center">
+  <a href="https://arxiv.org/html/2607.11433v3#S2.F2"><img src="docs/assets/control-loop.png" width="761" alt="The planner reads open needs from the ledger and calls a tool. The critic validates its observation, and the reducer updates the ledger before the agent continues or answers."></a>
+</p>
+
+*Figure 2 from the paper.* This release includes video and audio grounding,
+frame verification, and optional web search. The walkthrough on the project
+website lets you inspect the ledger after each step.
+
+[Installation](#install-and-configure) · [Run a question](#run-your-own-task) · [Local trace viewer](#local-trace-viewer) · [Source guide](#source-guide) · [Citation](#citation)
 
 ## Install and configure
 
@@ -30,16 +58,7 @@ IDs, and you can point each service at a separate OpenAI-compatible API.
 
 ## Run your own task
 
-Point the script at a local file. For a remote video, download it from a source
-you are permitted to use. This shell example prompts for your media URL.
-
-```bash
-mkdir -p inputs
-read -r -p "Video download URL: " VIDEO_URL
-curl --fail --location "$VIDEO_URL" --output inputs/video.mp4
-```
-
-Run a question. Place an optional same-name subtitle file beside the video
+Use a local video file. Place an optional same-name subtitle file beside the video
 (e.g. `inputs/video.srt`) to use its dialogue during captioning and retrieval.
 
 ```bash
@@ -55,6 +74,20 @@ python scripts/run_single.py --image inputs/photo.jpg --question "What is on the
 python scripts/run_single.py --video inputs/video.mp4 --image inputs/photo.jpg \
   --question "When does the object in the photo first appear in the video?"
 ```
+
+<details>
+<summary>Download a video from your own URL</summary>
+
+Point the script at a local file. For a remote video, download it from a source
+you are permitted to use. This shell example prompts for your media URL.
+
+```bash
+mkdir -p inputs
+read -r -p "Video download URL: " VIDEO_URL
+curl --fail --location "$VIDEO_URL" --output inputs/video.mp4
+```
+
+</details>
 
 The runner prints the answer and its run directory. Each invocation creates an
 independent directory under `outputs/` with `result.json`, `step_trace.jsonl`
@@ -98,6 +131,18 @@ The tool is disabled when the search key is blank.
 | Question profiling and critics | [agents/planning/](agents/planning/), [prompts/agent.yaml](prompts/agent.yaml) |
 | Media preprocessing, retrieval and verification | [agents/frame_caption.py](agents/frame_caption.py), [agents/tools/](agents/tools/) |
 | Task runner and local UI | [scripts/run_single.py](scripts/run_single.py), [gui/](gui/) |
+
+## Citation
+
+```bibtex
+@article{ma2026omnidecision,
+  title   = {Omni-Decision: Evidence-Ledger Planning for Omni-Modal Agents},
+  author  = {Ma, Ming and Zhu, Yi and Zhong, Yiran and Zhu, Feida and Wang, Yuhao and
+             Shi, Junhan and Mei, Lingrui and Yang, Tianming and Hoi, Steven},
+  journal = {arXiv preprint arXiv:2607.11433},
+  year    = {2026}
+}
+```
 
 ## License
 
