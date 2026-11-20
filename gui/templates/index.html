@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Omni-Decision Trace Viewer</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/style.css?v={{ static_version }}">
+  <script src="/static/app.js?v={{ static_version }}" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="head">
+      <div class="brand">
+        <span class="mark">Omni-<em>Decision</em></span>
+        <span class="sub">evidence-state trace</span>
+      </div>
+      <div class="head-right">
+        <button class="verbose-toggle" id="verbose-toggle" type="button" aria-pressed="false">
+          <span class="switch" id="verbose-switch"></span>
+          <span>full prompts</span>
+        </button>
+        <div class="status-pill" id="status-pill" data-state="idle">
+          <span class="dot"></span><span id="status-text">idle</span>
+        </div>
+      </div>
+    </header>
+
+    <aside class="aside">
+      <div class="tabs" role="tablist" aria-label="Trace modes">
+        <button class="tab active" id="tab-run" data-pane="run" type="button" role="tab" aria-controls="pane-run" aria-selected="true">Run</button>
+        <button class="tab" id="tab-load" data-pane="load" type="button" role="tab" aria-controls="pane-load" aria-selected="false">Load Log</button>
+      </div>
+
+      <section class="pane active" id="pane-run" role="tabpanel" aria-labelledby="tab-run">
+        <form id="run-form">
+          <div class="field">
+            <label>Assets</label>
+            <div id="asset-list">
+              <div class="asset-row">
+                <input class="inp asset-path" name="asset_path" placeholder="/path/to/asset" type="text" autocomplete="off">
+                <select class="asset-type" name="asset_type" aria-label="Asset type">
+                  <option value="video">video</option>
+                  <option value="image">image</option>
+                </select>
+                <button class="asset-del" title="remove" type="button" aria-label="Remove asset">×</button>
+              </div>
+            </div>
+            <button class="add-asset" id="add-asset" type="button">+ add asset</button>
+          </div>
+
+          <div class="field">
+            <label for="question-input">Question</label>
+            <textarea class="ta" id="question-input" name="question" placeholder="Ask one question about the asset(s)" required></textarea>
+          </div>
+
+          <details class="collapse">
+            <summary>Models <span class="chev">›</span></summary>
+            <div class="body">
+              <div class="mini-field">
+                <label for="planner-model">Orchestrator LLM</label>
+                <input class="inp" id="planner-model" name="planner_model" placeholder=".env default" type="text" autocomplete="off">
+              </div>
+              <div class="mini-field">
+                <label for="perception-model">VLM</label>
+                <input class="inp" id="perception-model" name="perception_model" placeholder=".env default" type="text" autocomplete="off">
+              </div>
+            </div>
+          </details>
+
+          <div class="field">
+            <label for="max-iterations">Max iterations</label>
+            <input class="inp" id="max-iterations" name="max_iterations" type="number" min="1" max="50" value="{{ default_form.max_iterations }}" required>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-run" id="run-btn" type="submit">Run</button>
+            <button class="btn btn-ghost hidden" id="cancel-btn" type="button">Cancel</button>
+          </div>
+          <p class="hint">Runs one ad-hoc task through the subprocess backend and streams each step_trace record as it arrives.</p>
+        </form>
+      </section>
+
+      <section class="pane" id="pane-load" role="tabpanel" aria-labelledby="tab-load">
+        <form id="load-form">
+          <div class="field">
+            <label for="log-path">step_trace.jsonl path</label>
+            <input class="inp" id="log-path" name="path" placeholder="/path/to/step_trace.jsonl" type="text" autocomplete="off" required>
+            <p class="hint">Replay a CLI or GUI step trace with the same renderer used by live runs.</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-run" id="load-btn" type="submit">Load</button>
+          </div>
+        </form>
+      </section>
+    </aside>
+
+    <main class="main">
+      <div class="rail" id="rail">
+        <span class="chip"><span class="k">case</span><b id="rail-case">—</b></span>
+        <span class="chip suff" id="rail-stage" data-v=""><span class="k">stage</span><b>—</b></span>
+        <span class="chip suff" id="rail-suff" data-v=""><span class="k">sufficiency</span><b>—</b></span>
+        <span class="chip"><span class="k">needs</span><b id="rail-needs">—</b></span>
+        <span class="chip" id="rail-atoms"><span class="k">atoms</span><b id="rail-atoms-val">—</b></span>
+        <span class="chip" id="rail-conflicts"><span class="k">conflicts</span><b id="rail-conflicts-val">—</b></span>
+        <span class="chip suff" id="rail-stop" data-v=""><span class="k">stop_ready</span><b>—</b></span>
+        <span class="spacer"></span>
+        <span class="count"><span id="rail-steps">0</span> steps · <span id="rail-tok">0</span> tok</span>
+        <div class="rail-needs-list" id="rail-needs-list"></div>
+      </div>
+
+      <div class="stream" id="stream">
+        <div class="stream-empty" id="empty">
+          <span class="big">no trace loaded</span>
+          <span>Run one task or load a step_trace.jsonl file.</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <button class="log-toggle" id="log-toggle" type="button">run log ↑</button>
+  <div class="runlog" id="runlog" aria-live="polite"></div>
+</body>
+</html>
